@@ -4,6 +4,7 @@ import Header from './component/header';
 import Home from './component/home';
 import Userlist from './component/userlist';
 import Adduser from './component/adduser';
+import Edituser from './component/edituser';
 
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
         <Route path="/" element={<Home/>} />
         <Route path="/userlist" element={<Userlist/>} />
         <Route path="/adduser" element={<Adduser/>} />
+        <Route path="/edituser/:id" element={<Edituser/>} />
       </Routes>
     </div>
   );

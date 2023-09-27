@@ -1,70 +1,157 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 // Fetch users
-export const fetchUsers= createAsyncThunk("user/fetchUsers", async()=>{
-  return axios.get("https://reqres.in/api/users")
-  .then((res) => res.data);
+export const fetchUsers = createAsyncThunk("user/fetchUsers", async () => {
+  try {
+    const res = await fetch("https://reqres.in/api/users");
+    const data = await res.json();
+    // console.log(data);
+    return data;
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 // Add user
-export const addUser= createAsyncThunk("user/addUser", async(values)=>{
-  return fetch("https://reqres.in/api/users", { method:"POST",
-  headers:{Accept:"application/json", "Content-Type":"application/json"} ,
-  body: JSON.stringify({
-      email: values.email,
-      first_name: values.first_name,
-      last_name: values.last_name,
-      avatar: values.avatar
-  }),
+export const addUser = createAsyncThunk("user/addUser", async (values) => {
+  try {
+    // console.log(values);
+    const response = await fetch("https://reqres.in/api/users", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: values.email,
+        first_name: values.first_name,
+        last_name: values.last_name,
+        avatar: values.avatar,
+      }),
+    });
 
-  }).then((res)=> res.json());
+    // console.log(response);
+    if (!response.ok) {
+      console.log("Failed");
+      throw new Error("Failed to add user");
+    }
 
+    const data = await response.json();
+    // console.log(data);
+    return data; 
+  } catch (error) {
+    console.log(error);
+    throw error; 
+  }
+});
+
+// Edit user
+export const updateUser = createAsyncThunk("user/updateUser", async (values) => {
+  try {
+    // console.log(values);
+    const { id, ...userData } = values;
+    const response = await fetch(`https://reqres.in/api/users/${id}`, {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userData),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to edit user");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    throw error;
+  }
+});
+
+// Delete user
+export const deleteUser = createAsyncThunk("user/deleteUser", async (id) => {
+  try {
+    const response = await fetch(`https://reqres.in/api/users/${id}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to delete user");
+    }
+
+    return id;
+  } catch (error) {
+    throw error;
+  }
 });
 
 const userSlice = createSlice({
-    name:"user",
-      initialState:{
-         loading:false,
-         user:[],
-         error:'',
-         isSuccess:'',
-      },
+  name: "user",
+  initialState: {
+    loading: false,
+    user: [],
+    error: "",
+    isSuccess: "",
+  },
 
-    //   reducer call here 
-    extraReducers: (builder) =>{
-        builder.addCase(fetchUsers.pending, state=>{
-          state.loading=true;
-        });
+  //   reducer call here
+  extraReducers: (builder) => {
+    builder.addCase(fetchUsers.pending, (state) => {
+      state.loading = true;
+    });
 
-        builder.addCase(fetchUsers.fulfilled, (state, action)=>{
-          state.loading=false;
-          state.user=action.payload;
-          state.error='';
-        });
-        builder.addCase(fetchUsers.rejected, (state, action)=>{
-          state.loading=false;
-          state.user=[];
-          state.error= action.error.message;
-        });
+    builder.addCase(fetchUsers.fulfilled, (state, action) => {
+      state.loading = false;
+      console.log(action, "hello===");
+      state.user = action.payload.data;
+      state.error = "";
+    });
+    builder.addCase(fetchUsers.rejected, (state, action) => {
+      state.loading = false;
+      state.user = [];
+      state.error = action.error.message;
+    });
 
-        // add user 
-        builder.addCase(addUser.pending, (state) =>{
-            state.loading= true;
-            state.error= '';
-        })
-        builder.addCase(addUser.fulfilled, (state, action)=>{
-            state.loading= false;
-            // state.user=[]
-            state.isSuccess=action.payload;    
-        })
-        builder.addCase(addUser.rejected, (state, action)=>{
-            state.loading= false; 
-            // state.user=[]
-            state.error=action.message;    
-        });
-    },
+    // add user
+    builder.addCase(addUser.pending, (state) => {
+      state.loading = true;
+      state.error = "";
+    });
+    builder.addCase(addUser.fulfilled, (state, action) => {
+      state.loading = false;
+      console.log(state.user, "0--0", action.payload.first_name);
+      state.user.push(action.payload);
+      state.isSuccess = action.payload;
+    });
+
+    builder.addCase(addUser.rejected, (state, action) => {
+      state.loading = false;
+
+      // console.log(action.payload, "--==");
+      state.error = action.message;
+    });
+
+    // Edit User 
+    builder.addCase(updateUser.fulfilled, (state, action) => {
+      state.loading = false;
+      const updatedUser = action.payload;
+      const index = state.user.findIndex((user) => user.id === updatedUser.id);
+      if (index !== -1) {
+        state.user[index] = updatedUser;
+        state.isSuccess = updatedUser;
+      }
+    });
+    
+    // Delete User 
+    builder.addCase(deleteUser.fulfilled, (state, action) => {
+      state.loading = false;
+      const deletedUserId = action.payload;
+      state.user = state.user.filter((user) => user.id !== deletedUserId);
+      state.isSuccess = `User with ID ${deletedUserId} deleted successfully.`;
+    });
+  },
 });
-
 
 export default userSlice.reducer;
