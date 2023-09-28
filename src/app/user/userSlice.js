@@ -38,10 +38,10 @@ export const addUser = createAsyncThunk("user/addUser", async (values) => {
 
     const data = await response.json();
     // console.log(data);
-    return data; 
+    return data;
   } catch (error) {
     console.log(error);
-    throw error; 
+    throw error;
   }
 });
 
@@ -49,23 +49,20 @@ export const addUser = createAsyncThunk("user/addUser", async (values) => {
 export const updateUser = createAsyncThunk(
   "updateUser",
   async (data, { rejectWithValue }) => {
-    console.log("updated data", data);
-    const response = await fetch(
-       `https://reqres.in/api/users/${data.id}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      }
-    );
+    const response = await fetch(`https://reqres.in/api/users/${data.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
 
     try {
       const result = await response.json();
+      // console.log(result);
       return result;
     } catch (error) {
-       return rejectWithValue(error);
+      return rejectWithValue(error);
     }
   }
 );
@@ -104,7 +101,7 @@ const userSlice = createSlice({
 
     builder.addCase(fetchUsers.fulfilled, (state, action) => {
       state.loading = false;
-      console.log(action, "hello===");
+      // console.log(action, "hello===");
       state.user = action.payload.data;
       state.error = "";
     });
@@ -121,7 +118,7 @@ const userSlice = createSlice({
     });
     builder.addCase(addUser.fulfilled, (state, action) => {
       state.loading = false;
-      console.log(state.user, "0--0", action.payload.first_name);
+      // console.log(state.user, action.payload);
       state.user.push(action.payload);
       state.isSuccess = action.payload;
     });
@@ -133,23 +130,32 @@ const userSlice = createSlice({
       state.error = action.message;
     });
 
-    // Edit User 
+    // Edit User
     builder.addCase(updateUser.pending, (state) => {
       state.loading = true;
     });
     builder.addCase(updateUser.fulfilled, (state, action) => {
       state.loading = false;
-      state.user = state.user.map((item) =>
-         item.id === action.payload.id ? action.payload : item
-         );
+
+      const updateUser = action.payload;
+      const updateUserId = action.payload.id;
+
+      const index = state.user.findIndex((object) => {
+        return object.id == updateUserId;
+      });
+
+      console.log(index);
+
+      state.user[index] = updateUser;
+      console.log(state.user);
+      state.isSuccess = `User with ID ${updateUser} deleted successfully.`;
     });
     builder.addCase(updateUser.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload.message;
     });
-    
-    
-    // Delete User 
+
+    // Delete User
     builder.addCase(deleteUser.fulfilled, (state, action) => {
       state.loading = false;
       const deletedUserId = action.payload;

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
  import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom'
  import { addUser } from "../app/user/userSlice";
@@ -17,19 +17,18 @@ function Adduser(){
     const { register, handleSubmit, formState: {errors} } = useForm({
         resolver: yupResolver(schema), 
     });
-
+     const [users, setUsers] = useState({});
      const dispatch= useDispatch();
      const navigate= useNavigate();
 
+     const getUserData = (e) => {
+        setUsers({...users, [e.target.name]: e.target.value });
+     };
 
-      const onSubmit = (data) => {
-        //  console.log(data); 
-         dispatch(addUser(data));
-
-        setTimeout(() => {
+      const onSubmit = (users) => {
+        console.log("users...", users);
+         dispatch(addUser(users));
           navigate("/userlist");
-       }, 2000);
-
      };
 
   return (
@@ -43,28 +42,28 @@ function Adduser(){
                   <div className='row mb-3'>
                      <label className='col-sm-3 col-form-label'>Email:</label>
                      <div className='col-md-8'>
-                        <input type='text' className='form-control' name='email'  placeholder='Enter Email' {...register("email")} />
+                        <input type='text' className='form-control' name='email' onChange={getUserData} placeholder='Enter Email' {...register("email")} />
                         <p>{errors.email?.message}</p>
                      </div>
                    </div>
                   <div className='row mb-3'>
                      <label className='col-sm-3 col-form-label'>First Name:</label>
                      <div className='col-md-8'>
-                     <input className='form-control' name='first_name'  placeholder='Enter first name' {...register("first_name")} />
+                     <input className='form-control' name='first_name' onChange={getUserData} placeholder='Enter first name' {...register("first_name")} />
                       <p>{errors.first_name?.message}</p>
                      </div>
                    </div>
                   <div className='row mb-3'>
                      <label className='col-sm-3 col-form-label'>Last Name:</label>
                      <div className='col-md-8'>
-                     <input className='form-control' name='last_name' placeholder='Enter last name' {...register("last_name")} />
+                     <input className='form-control' name='last_name' onChange={getUserData} placeholder='Enter last name' {...register("last_name")} />
                      <p>{errors.last_name?.message}</p>
                      </div>
                    </div>
                   <div className='row mb-3'>
                      <label className='col-sm-3 col-form-label'>Avatar:</label>
                      <div className='col-md-8'>
-                     <input className='form-control' name='avatar' placeholder='Paste URL' {...register("avatar")} />
+                     <input className='form-control' name='avatar' onChange={getUserData} placeholder='Paste URL' {...register("avatar")} />
                      <p>{errors.avatar?.message}</p>
                      </div>
                    </div>

@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { fetchUsers } from "../app/user/userSlice";
 import { useSelector, useDispatch } from "react-redux";
-import { deleteUser } from '../app/user/userSlice';
+import { deleteUser } from "../app/user/userSlice";
 
 function Userlist() {
   const dispatch = useDispatch();
@@ -10,15 +10,10 @@ function Userlist() {
     return state.user;
   });
 
-  // console.log(users, "---");
-
-  const handleCreateUser = () => {
-    dispatch(fetchUsers());
-  };
 
   // Function to handle user deletion
   const handleDeleteUser = (id) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
+    if (window.confirm("Are you sure you want to delete this user?")) {
       dispatch(deleteUser(id));
     }
   };
@@ -39,7 +34,6 @@ function Userlist() {
               <Link to="/adduser" className="btn btn-info btn-lg mb-3">
                 Add User
               </Link>
-              <button onClick={handleCreateUser} className="btn btn-info btn-lg mb-3">View UsersList</button>
             </div>
             <table className="table table-bordered">
               <thead>
@@ -68,8 +62,21 @@ function Userlist() {
                       />
                     </td>
                     <td>
-                      <Link to={`/edituser/${item.id}`} className="btn btn-primary">Edit</Link> |
-                       <button onClick={() => { handleDeleteUser(item.id) }} className="btn btn-danger">Delete</button>
+                      <Link
+                        to={`/edituser/${item.id}`}
+                        className="btn btn-primary"
+                      >
+                        Edit
+                      </Link>{" "}
+                      |
+                      <button
+                        onClick={() => {
+                          handleDeleteUser(item.id);
+                        }}
+                        className="btn btn-danger"
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}
