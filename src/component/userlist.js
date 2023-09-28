@@ -26,7 +26,6 @@ function Userlist() {
   return (
     <React.Fragment>
       <div className="container">
-        <button onClick={handleCreateUser}>View UsersList</button>
         <div className="row">
           <div className="col-mid-12">
             <h3 className="mt-3">Userlist</h3>
@@ -40,6 +39,7 @@ function Userlist() {
               <Link to="/adduser" className="btn btn-info btn-lg mb-3">
                 Add User
               </Link>
+              <button onClick={handleCreateUser} className="btn btn-info btn-lg mb-3">View UsersList</button>
             </div>
             <table className="table table-bordered">
               <thead>
@@ -68,7 +68,7 @@ function Userlist() {
                       />
                     </td>
                     <td>
-                      <Link to={'/edituser/:id'} className="btn btn-primary">Edit</Link> |
+                      <Link to={`/edituser/${item.id}`} className="btn btn-primary">Edit</Link> |
                        <button onClick={() => { handleDeleteUser(item.id) }} className="btn btn-danger">Delete</button>
                     </td>
                   </tr>
